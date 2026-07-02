@@ -1,0 +1,13 @@
+{
+  "name": "express-prometheus-metrics",
+  "version": "1.0.0",
+  "description": "Simple Express server tracking metrics via prom-client",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "prom-client": "^15.1.2"
+  }
+}
