@@ -410,7 +410,7 @@ def generate_episode(
     metrics, logs, trace_rows = [], [], []
     service = str(rng.choice(SERVICES))
     svc_version = str(rng.choice(SERVICE_VERSIONS))
-    source = "prometheus"   # metric source label
+    source = "python generator"   # metric source label
     base_ts = int(rng.integers(1_700_000_000, 1_700_500_000))
 
     for step in range(config.steps_per_episode):
