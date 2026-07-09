@@ -1,13 +1,14 @@
 """
-AIOps Platform -- Full Telemetry Data Generator (20k rows, 13 failure modes)
-=============================================================================
+AIOps Platform -- Full Telemetry Data Generator (120k rows, 13 failure modes)
+==============================================================================
 Generates synthetic telemetry for all 13 HMM failure modes.
 
 Output files:
-  data/telemetry_metrics.csv   -- 20k rows, 33 columns (one row per 2s step)
-  data/telemetry_traces.csv    -- ~15k rows, 14 columns (one row per span)
-  data/telemetry_logs.csv      -- 20k rows, 8 columns (one log line per step)
+  data/telemetry_metrics.csv   -- ~120k rows, 33 columns (one row per 2s step)
+  data/telemetry_traces.csv    -- ~90k rows,  14 columns (one row per span)
+  data/telemetry_logs.csv      -- ~120k rows,  8 columns (one log line per step)
 
+Row math: 13 modes x 77 episodes x 120 steps = 120,120 metric rows.
 Schema driven from the user-specified column definitions.
 All values ASCII-only (Windows cp1252 safe).
 """
@@ -80,7 +81,7 @@ LOG_FIELDS = [
 @dataclass
 class Config:
     seed: int = 42
-    episodes_per_mode: int = 13   # 13 modes x 13 eps x 120 steps = 20,280 metric rows
+    episodes_per_mode: int = 77   # 13 modes x 77 eps x 120 steps = 120,120 metric rows
     steps_per_episode: int = 120
     step_interval_s: int = 2
     output_dir: str = "data"
@@ -801,9 +802,11 @@ def write_csv(rows, path, fields, write_header=True, file_mode="w"):
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate 20k-row telemetry dataset (13 modes, full schema)")
-    parser.add_argument("--episodes", type=int, default=13)
-    parser.add_argument("--steps",    type=int, default=120)
+    parser = argparse.ArgumentParser(description="Generate ~120k-row telemetry dataset (13 modes x 77 eps, full schema)")
+    parser.add_argument("--episodes", type=int, default=77,
+                        help="Episodes per failure mode (default: 77 → 120,120 total metric rows)")
+    parser.add_argument("--steps",    type=int, default=120,
+                        help="Steps per episode at 2s interval (default: 120 = 4 min)")
     parser.add_argument("--seed",     type=int, default=42)
     parser.add_argument("--output",   type=str, default="data")
     args = parser.parse_args()
@@ -825,12 +828,13 @@ def main():
 
     expected = len(ALL_MODES) * config.episodes_per_mode * config.steps_per_episode
     print("=" * 65)
-    print("AIOps Full Telemetry Generator")
+    print("AIOps Full Telemetry Generator  (~120k rows)")
     print("  Modes: {}  |  Eps/mode: {}  |  Steps: {}".format(
         len(ALL_MODES), config.episodes_per_mode, config.steps_per_episode))
     print("  Expected metric rows  : {:,}".format(expected))
     print("  Expected trace rows   : ~{:,}".format(
         len(ALL_MODES) * config.episodes_per_mode * (config.steps_per_episode // 4) * 3))
+    print("  Expected log rows     : {:,}".format(expected))
     print("=" * 65)
 
     global_ep = 0
